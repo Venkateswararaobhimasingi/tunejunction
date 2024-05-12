@@ -1,0 +1,141 @@
+{% extends "music/base.html" %}
+{% block content %}
+{% load static %}
+
+<title>Audio Details</title>
+
+<style>
+    .card1 {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: hidden;
+        position: relative;
+        
+    }
+    
+
+    .card1 img {
+        width: 100%;
+        height: auto;
+    }
+
+    .details,
+    .play-icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        transition: opacity 0.5s ease;
+    }
+    
+
+    .card1:hover .details,
+    .card1:hover .play-icon {
+        display: flex;
+    }
+
+    .play-icon i {
+        font-size: 50px;
+        color: green;
+        cursor: pointer;
+    }
+
+    .transparent-background {
+        background-color: transparent; /* Red color with 50% opacity */
+    }
+
+    .button-container {
+        display: flex; /* Use flexbox */
+        justify-content: center; /* Align items horizontally to the center */
+        margin-top: 10px; /* Add margin to the top */
+    }
+
+    .button {
+        margin-right: 10px; /* Add some spacing between buttons */
+    }
+    .glow {
+       
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #ff00de, 0 0 70px #ff00de, 0 0 80px #ff00de, 0 0 100px #ff00de, 0 0 150px #ff00de;
+        animation: glowing 1.5s infinite;
+    }
+    
+    @keyframes glowing {
+        0% {
+            text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #ff00de, 0 0 70px #ff00de, 0 0 80px #ff00de, 0 0 100px #ff00de, 0 0 150px #ff00de;
+        }
+        50% {
+            text-shadow: none;
+        }
+        
+    }
+</style>
+
+</head>
+
+<body>
+    <h2  style="color: #ccc;">Audio Details</h2>
+    
+
+    <div class="row justify-content-center">
+        
+      
+        {% for audio_detail in audio_details %}
+        <div class="col-md-6"> <!-- Make the column full width -->
+            <div class="card transparent-background card1 img">
+                
+                    <img src="{{ audio_detail.image.url }}" alt="Placeholder ">
+                    <div class="details">
+                        <h5 class="card-title" style="color: white;">Image Details:</h5>
+                        <p class="card-text">{{ audio_detail.title }}</p>
+                        <p class="card-text">{{ audio_detail.artist }}</p>
+                        <p class="card-text">{{ audio_detail.album }}</p>
+                        <p class="card-text">{{ audio_detail.genre }}</p>
+                        <p class="card-text">{{ audio_detail.duration }}</p>
+                    </div>
+                </div>
+                <div class="button-container" style="padding-top: 20px;">
+                    <a href="play/{{audio_detail.id}}/" class="btn btn-danger button" style="width: 7rem;">Play</a>
+                    {% if user.is_authenticated %}
+                    <form id="myForm" action="{% url 'listenlateradd' %}" method="POST">
+                        {% csrf_token %}
+                        
+                        <input type="hidden" name="audio_id" id="audio_id_input" value="{{ audio_detail.id }}">
+                        <!-- You can add other form fields if needed -->
+                    
+                        <!-- Link styled as a button -->
+                        <button type="submit" class="btn btn-danger button" id="submit_btn">Listen Later</button>
+                        
+                    </form>
+                    {% endif %}
+                    
+                    
+                    <script>
+                        function submitForm() {
+                            // Set the audio_id value to the hidden input field
+                            var audio_id = document.getElementById("audio_id_input").value;
+                    
+                            // Submit the form
+                            document.getElementById("myForm").submit();
+                        }
+                    </script>
+                    
+                    
+                </div>
+            
+        </div>
+        {% endfor %}
+    </div>
+
+   
+</body>
+{% endblock content %}

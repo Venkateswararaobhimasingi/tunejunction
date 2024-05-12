@@ -1,0 +1,41 @@
+{% extends "music/base.html" %}
+{% block content %}
+<div style="padding-top: 40px; padding-left: 50px;">
+    <h1 style="font-size: 36px; color: #00bfff; text-shadow: 0 0 10px #00bfff, 0 0 20px #00bfff, 0 0 30px #00bfff, 0 0 40px #00bfff, 0 0 50px #00bfff, 0 0 60px #00bfff, 0 0 70px #00bfff, 0 0 80px #00bfff;">Contact Us</h1>
+    <p style="color: aqua;">Welcome to our website! Feel free to contact us using the form below:</p>
+    <form id="contactForm">
+        <div class="form-group">
+            <label for="userEmail" style="color: aqua;">Your Email:</label>
+            <input type="email" class="form-control" id="userEmail" required>
+        </div>
+        <div class="form-group">
+            <label for="message" style="color: aqua;">Message:</label>
+            <textarea class="form-control" id="message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        
+        <!-- GitHub and LinkedIn icons with links -->
+        <div style="margin-top: 20px;">
+            <a href="https://github.com/Venkateswararaobhimasingi" target="_blank" style="margin-right: 20px;">
+                <img src="https://img.icons8.com/fluency/48/000000/github.png" alt="GitHub" style="width: 32px; height: 32px;">
+            </a>
+            <a href="https://www.linkedin.com/in/venkateswara-rao-bhimasingi-376981287/" target="_blank">
+                <img src="https://img.icons8.com/fluency/48/000000/linkedin.png" alt="LinkedIn" style="width: 32px; height: 32px;">
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById("contactForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+        var userEmail = document.getElementById("userEmail").value;
+        var message = document.getElementById("message").value;
+        var subject = "Contact from Website";
+        var body = "User Email: " + userEmail + "%0A%0A" + "Message: " + message;
+        var adminEmail = "srinu19773@gmail.com"; // Admin's email
+        var mailToLink = "mailto:" + adminEmail + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+        window.location.href = mailToLink; // Redirect to email client with prefilled details
+    });
+</script>
+{% endblock content %}

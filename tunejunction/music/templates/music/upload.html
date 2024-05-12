@@ -1,0 +1,103 @@
+{% extends "music/base.html" %}
+{% block content %}
+<head>
+    <title>Upload Audio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .upload-container {
+            text-align: center;
+            width: 350px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px; /* Added margin bottom */
+        }
+
+        .upload-title {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .upload-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-button:hover {
+            background-color: #45a049;
+        }
+
+        .alert-container {
+            text-align: center; /* Align alert message to center */
+        }
+
+        .alert {
+            display: none;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            transition: opacity 0.3s;
+        }
+
+        .alert.show {
+            display: block;
+            opacity: 1;
+            margin-top: 20px; /* Added margin top to push it below upload container */
+        }
+    </style>
+</head>
+<body>
+    <div style="padding-left:37% ;">
+    <div class="d-flex flex-column justify-content-center">
+
+        <div class="upload-container">
+            <h2 class="upload-title">Upload Audio</h2>
+            <form id="uploadForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button id="uploadButton" class="upload-button" type="submit">Upload</button>
+            </form>
+        </div>
+        <div class="alert-container">
+            <div id="alertMessage" class="alert"></div>
+        </div>
+    </div>
+    </div>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            // Prevent the form from submitting
+            event.preventDefault();
+            
+            // Disable the upload button
+            document.getElementById('uploadButton').disabled = true;
+
+            // Create and display alert message
+            var alertMessage = document.getElementById('alertMessage');
+            alertMessage.textContent = 'File uploaded successfully.';
+            alertMessage.classList.add('show');
+            
+            // Submit the form after a delay (for demonstration purposes)
+            setTimeout(function() {
+                document.getElementById('uploadForm').submit();
+            }, 1000); // Change the delay time as needed
+        });
+    </script>
+</body>
+{% endblock content %}

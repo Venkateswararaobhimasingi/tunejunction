@@ -1,0 +1,273 @@
+{% extends "music/base.html" %}
+{% block content %}
+<head>
+     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Player</title>
+    <style>
+        /* Add your CSS styles here */
+        .container {
+            text-align: center; /* Center align content */
+            color: white; /* Set text color to white */
+        }
+
+        .apple {
+            background: transparent;
+            backdrop-filter: blur(10px);
+            border: 1px solid gray;
+            border-radius: 10px;
+            animation: glow 2s infinite alternate; /* CSS animation for glowing effect */
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Initial shadow color */
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 1), /* Final shadow color */
+                            0 0 40px rgba(255, 255, 255, 0.5), /* Intermediate shadow color */
+                            0 0 60px rgba(255, 255, 255, 0.3); /* Lighter shadow color */
+            }
+        }
+
+        .album-art {
+            width: 200px; /* Set width */
+            height: 200px; /* Set height */
+            border-radius: 50%; /* Make it circular */
+            margin-bottom: 20px; /* Add some space */
+            animation: rotate 2s linear infinite; /* CSS animation for image rotation */
+            box-shadow: 0 0 10px white; /* Add initial glowing effect */
+        }
+
+        .progress-bar-container {
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center align items horizontally */
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            margin-bottom: 10px; /* Add some space */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Change cursor to pointer */
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 5px; /* Rounded corners */
+        }
+
+        .duration {
+            font-size: 18px; /* Adjust font size */
+            color: white; /* Set text color to white */
+        }
+
+        .audio-controls {
+            margin-top: 20px; /* Add space between controls and progress bar */
+        }
+
+        .button {
+            /* Add your button styles here */
+            margin: 0 5px; /* Add space between buttons */
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="position: absolute;">
+        <div class='apple' style="padding: 10px 10px 10px 10px;">
+            <div style="padding: 30px 30px 30px 30px;">
+                <img class="album-art" src="{{ audio_details.image.url }}" alt="Album Art">
+                <p class="artist">Artist: {{ audio_details.artist }}</p>
+                <p class="title">Title: {{ audio_details.title }}</p>
+                <p class="genre">Genre: {{ audio_details.genre }}</p>
+                <p class="album">Album: {{ audio_details.album }}</p>
+                <p class="duration">Duration: {{ audio_details.duration }} (total_sec/60)</p>
+                <p class="duration">Play Time: <span id="duration">0:00</span>s</p>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar">
+                        <div id="progress" class="progress"></div>
+                    </div>
+                    <div class="audio-controls">
+                        <!-- Replace the toggle button for infinite mode with repeat button -->
+                        <button id="repeat-toggle-button" class="btn btn-danger button">Repeat All</button>
+<!-- here i used the reverse manner of the play next and playpast because of view objects by reverse manner or recent adiuos -->
+                        <a href="{% url 'playnext' audio_details.id %}" class="btn btn-danger button" style="width: 7rem;"><<</a>
+                        <button id="play-button" class="btn btn-danger button">Play</button>
+                        <button id="stop-button" class="btn btn-danger button">Stop</button>
+                        <a href="{% url 'playpast' audio_details.id %}" class="btn btn-danger button" style="width: 7rem;">>></a>
+                        <a href="{{ audio_details.audio_file.url }}" download="{{ audio_details.title }}" class="btn btn-danger button">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var audio = new Audio('{{ audio_details.audio_file.url }}');
+            var nextUrl = "{% url 'playpast' audio_details.id %}";  // URL for playing next audio
+            var recentUrl = "{% url 'recentplay' audio_details.id %}"; 
+            var trendcount = "{% url 'trendcount' audio_details.id %}";  // URL for calling recentplay
+            
+            var playButton = document.getElementById('play-button');
+            var stopButton = document.getElementById('stop-button');
+            var progressBar = document.getElementById('progress');
+            var progressBarContainer = document.getElementById('progress-bar');
+            var durationSpan = document.getElementById('duration');
+            
+            // Autoplay the audio when the page loads
+            audio.autoplay = true;
+            
+            // Repeat mode options
+            var REPEAT_MODE = {
+                NONE: 0,
+                ALL: 1
+            };
+            
+            var currentRepeatMode = REPEAT_MODE.NONE; // Default to no repeat
+            var playCount = 0;
+            var trendCount = 0; // Initialize play count
+            
+            // Handle repeat toggle button click
+            var repeatToggleButton = document.getElementById('repeat-toggle-button');
+            repeatToggleButton.addEventListener('click', function() {
+                if (currentRepeatMode == REPEAT_MODE.NONE) {
+                    currentRepeatMode = REPEAT_MODE.ALL;
+                    repeatToggleButton.textContent = 'No Repeat';
+                } else {
+                    currentRepeatMode = REPEAT_MODE.NONE;
+                    repeatToggleButton.textContent = 'Repeat All';
+                }
+            });
+            
+            playButton.addEventListener('click', function() {
+                if (audio.paused) {
+                    audio.play();
+                    playButton.textContent = 'Pause';
+                    updateProgressBar();
+                } else {
+                    audio.pause();
+                    playButton.textContent = 'Play';
+                }
+            });
+            
+            stopButton.addEventListener('click', function() {
+                audio.pause();
+                audio.currentTime = 0;
+                playButton.textContent = 'Play';
+            });
+            
+            progressBarContainer.addEventListener('click', function(event) {
+                var offsetX = event.clientX - progressBarContainer.getBoundingClientRect().left;
+                var percentage = offsetX / progressBarContainer.offsetWidth;
+                audio.currentTime = audio.duration * percentage;
+                
+                updateProgressBar();
+                updateDuration();
+            });
+
+            audio.addEventListener('timeupdate', function() {
+                updateProgressBar();
+                updateDuration();
+        
+                // Increment play count if audio is playing
+                if (!audio.paused) {
+                    trendCount++;
+                    
+                }
+        
+                // Check if the play count is exactly 20
+                if (trendCount == Math.round(({{ audio_details.duration }}*210)/1.3) ) { //here least time of 30s
+                    //1 min =210
+                    //120=1.98
+                    //(1.98*210)*1.2
+                    // for count trend Math.round(({{ audio_details.duration }}*210)/1.2)
+                    // Perform a GET request to the 'recentplay' URL
+                    fetch(trendcount)
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('recentplay URL called successfully.');
+                            } else {
+                                console.error('Failed to call recentplay URL.');
+                            }
+                        })
+                        .catch(error => console.error('Error calling recentplay URL:', error));
+        
+                    // Reset play count
+                    trendCount = 0;
+                }
+            });
+            
+            audio.addEventListener('timeupdate', function() {
+                updateProgressBar();
+                updateDuration();
+        
+                // Increment play count if audio is playing
+                if (!audio.paused) {
+                    playCount++;
+                }
+        
+                // Check if the play count is exactly 20
+                if (playCount == 110 ) { //here least time of 30s
+                    //1 min =210
+                    //120=1.98
+                    //(1.98*210)*1.2
+                    // for count trend Math.round(({{ audio_details.duration }}*210)/1.2)
+                    // Perform a GET request to the 'recentplay' URL
+                    fetch(recentUrl)
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('recentplay URL called successfully.');
+                            } else {
+                                console.error('Failed to call recentplay URL.');
+                            }
+                        })
+                        .catch(error => console.error('Error calling recentplay URL:', error));
+        
+                    // Reset play count
+                    playCount = 0;
+                }
+            });
+            
+            audio.addEventListener('ended', function() {
+                if (currentRepeatMode == REPEAT_MODE.ALL) {
+                    audio.currentTime = 0; // If repeat all mode is enabled, replay the audio
+                    audio.play();
+                } else {
+                    window.location.href = nextUrl;
+                    playCount=0;
+                    trendCount=0; // Navigate to the next audio URL
+                }
+            });
+            
+            // Set the play button text to "Pause" after autoplay
+            audio.addEventListener('play', function() {
+                playButton.textContent = 'Pause';
+            });
+            
+            // If the audio is playing when navigating to the next audio, keep the play button text as "Pause"
+            if (!audio.paused) {
+                playButton.textContent = 'Pause';
+            }
+            
+            function updateProgressBar() {
+                var progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+            }
+            
+            function updateDuration() {
+                var minutes = Math.floor(audio.currentTime / 60);
+                var seconds = Math.floor(audio.currentTime % 60);
+                durationSpan.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            }
+        });
+        
+                
+    </script>
+</body>
+{% endblock content %}

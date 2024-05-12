@@ -1,0 +1,104 @@
+{% extends "music/base.html" %}
+{% block content %}
+{% load static %}
+
+<h2 style="color: #fff; text-align: center;padding-bottom: 3%;">Recent songs played by {% if request.user.is_authenticated %}
+    {{ request.user.username }}!
+{% else %}
+   <p>Welcome, Guest!</p>
+{% endif %}</h2>
+{% if  audio_details|length < 1 %}
+        <h3 style="text-align: center; padding-top: 5%; color: whitesmoke;">You have no Recent play songs.</h3>
+    {% endif %}
+<style>
+    .media {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        overflow: hidden;
+        width: 100%;
+        transition: transform 0.3s ease; /* Add transition effect for smoother movement */
+    }
+
+    .media:hover {
+        transform: translateY(-5px); /* Move the card upwards slightly on hover */
+    }
+
+    .rounded-circle {
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+    }
+
+    .media-body {
+        margin-left: 20px;
+    }
+
+    .article-title {
+        font-size: 24px;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .article-title:hover {
+        color: #ff00de;
+    }
+
+    .article-content {
+        font-size: 18px;
+        color: #fff;
+        margin-bottom: 5px;
+    }
+
+    .button-container {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+    }
+
+    .media:hover .button-container {
+        opacity: 1;
+    }
+
+    .button {
+        margin-right: 10px;
+        width: 7rem;
+    }
+</style>
+
+<div class="container">
+    {% for audio_detail in audio_details %}
+    <div class="media">
+        <img class="rounded-circle" src="{{ audio_detail.image.url }}" alt="{{ audio_detail.title }}">
+        <div class="media-body">
+            <h2><a class="article-title" href="{% url 'play' audio_detail.id %}">{{ audio_detail.title }}</a></h2>
+            <p class="article-content">{{ audio_detail.artist }}</p>
+            <p class="article-content">{{ audio_detail.album }}</p>
+            <p class="article-content" style="padding-bottom: 5%;">{{ audio_detail.genre }}</p>
+        </div>
+        <div class="button-container">
+            <a href="play/{{ audio_detail.id }}/" class="btn btn-outline-light  button">Play</a>
+            {% if user.is_authenticated %}
+            <form action="{% url 'listenlateradd' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="audio_id" value="{{ audio_detail.id }}">
+                <button type="submit" class="btn btn-outline-light  button">Listen Later</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% if  audio_details|length >= 1 %}
+        
+<div style="color: #fff;padding-left: 15%;">Note:Your  Recent 20 songs will be displayed here</div>
+   {% endif %} 
+
+{% endblock content %}
