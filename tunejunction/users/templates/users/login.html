@@ -1,0 +1,52 @@
+{% extends "music/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+<div style="padding: 20px;">
+    <div class="container">
+        <div class="card p-4" style="background-color: aliceblue; border-radius: 20px;">
+            <div class="content-section">
+                <div style="padding-left: 35%;">
+                <img src="{% static 'users/imgem2.jpg' %}"  id="login-img" class="rounded-circle mb-4" width="120" height="120" alt="Login Image">
+                </div>
+                <form method='POST' id="login-form">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Log In</legend>
+                        {{ form|crispy }}
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-outline-info" type="submit">Login</button>
+                        <small class="text-muted ml-2">
+                            <a class="ml-2" href="{% url 'password_reset' %}">Forgot Password?</a>
+                        </small>
+                    </div>
+                </form>
+                <div class="border-top pt-3">
+                    <small class="text-muted">
+                        Need An Account? 
+                        <a class="ml-2" href="{% url 'register' %}">Sign Up Now</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript code to change the image on password input focus
+    const passwordInput = document.getElementById('id_password');
+    const loginImg = document.getElementById('login-img');
+    
+    passwordInput.addEventListener('focus', function() {
+        // Change the image source when password input is focused
+        loginImg.src = "{% static 'users/imgem3.jpg' %}";
+    });
+    
+    passwordInput.addEventListener('blur', function() {
+        // Change the image source back to the default when password input is blurred
+        loginImg.src = "{% static 'users/imgem2.jpg' %}";
+    });
+</script>
+
+{% endblock content %}
