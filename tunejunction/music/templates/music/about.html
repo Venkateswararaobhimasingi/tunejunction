@@ -1,0 +1,18 @@
+{% extends "music/base.html" %}
+{% block content %}
+{% load static %}
+
+<div class="about-section" style="padding-top: 38px;" >
+    <h1 style="font-size: 36px; color: #ffffff; text-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff, 0 0 40px #ffffff, 0 0 50px #ffffff, 0 0 60px #ffffff, 0 0 70px #ffffff, 0 0 80px #ffffff;">About Us</h1>
+
+    <p style="color:aqua">Explore our music website to dive into the vibrant world of music. Discover the stories behind your favorite artists through detailed profiles and stay updated on their upcoming performances with our concert listings. Immerse yourself in the latest music releases with honest reviews and news updates covering album releases and industry trends. Watch captivating music videos and curated playlists across various genres, and connect with fellow music enthusiasts in our community features. Show your support for your favorite bands and artists by shopping for exclusive merchandise in our store. </p>
+    </div>
+
+<!-- Embedding video with autoplay -->
+<div class="video-container">
+    <video autoplay muted loop width="400" height="450">
+        <source src="{% static 'music/video.mp4' %}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+{% endblock content %}

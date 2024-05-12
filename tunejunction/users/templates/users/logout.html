@@ -1,0 +1,16 @@
+{% extends "music/base.html" %}
+
+{% block content %}
+<div style="padding: 20%;">
+    <div class="container" style="border: 50px;background-color: aliceblue;">
+        <div style="padding: 8%;">
+    <div style="font-size: 23px;"> You have been logged out</div>
+    <div class="border-top pt-7">
+        <small class="text-muted">
+            <a class="ml-2" href="{% url 'login' %}">Login In Again</a>
+            </small>
+        </div>
+    </div>
+    </div>
+</div>
+{% endblock content %}
